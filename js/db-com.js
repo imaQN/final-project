@@ -1,3 +1,4 @@
+//fetch untuk signup
 function signup(nameInput, usernameInput, passInput, confPass){
     fetch("http://localhost:3000/api/register",{
         method: "POST",
@@ -19,8 +20,9 @@ function signup(nameInput, usernameInput, passInput, confPass){
             console.log(responseJson.message)
     })
 }
+//fetch untuk login
 function login(usernameInput, passInput){
-    fetch("http://localhost:3000/api/login", {
+    return fetch("http://localhost:3000/api/login", {
         method: "POST",
         headers:  {"Content-Type": "application/json"},
         body: JSON.stringify({
@@ -33,39 +35,25 @@ function login(usernameInput, passInput){
     })
     .then(responseJson  =>{
         if(responseJson.isAuth){
-            localStorage.setItem('token', responseJson.token);
-            M.toast({html: 'Login success'})
+            localStorage.setItem('token', responseJson.token); //simpan token di local storage
+            M.toast({html: 'Login success'}); //toast tanda login berhasil
+            return Promise.resolve(true);
         }
         else{
-            M.toast({html: `${responseJson.message}`})
-
+            M.toast({html: `${responseJson.message}`}) //toast tanda login gagal
+            return Promise.reject(false)
         }
     })
 }
-function profile(){
-    fetch("http://localhost:3000/api/profile", {
-        method: "GET",
-        credentials: 'include',
-        headers: {'x-access-token' : localStorage.getItem('token')}
-    })
-    .then(res =>{
-        return res.json()
-    })
-    .then(responseJson  =>{
-        if(responseJson.isAuth)
-            console.log(responseJson)
-        else
-            console.log(responseJson)
-    })
-}
+//fetch untuk logout
 function logout(){
     fetch("http://localhost:3000/api/logout", {
         method: "GET",
-        headers: {'x-access-token' : localStorage.getItem('token')}
+        headers: {'x-access-token' : localStorage.getItem('token')} //pakai headers untuk access activity
     })
     .then(res =>{
         if (res.status == 200){
-            localStorage.removeItem('token');
+            localStorage.removeItem('token'); //hapus token di local storage
             return true;
         }
         else{
@@ -73,6 +61,7 @@ function logout(){
         }
     })
 }
+//menampilkan daftar bab
 function showLessonList(){
     return fetch("http://localhost:8000/kuis/",{
         method: "GET",
@@ -81,24 +70,28 @@ function showLessonList(){
         return res.json();
     })
     .then(responseJson =>{
-        displayList(responseJson);
         return Promise.resolve(responseJson);
     })
     .catch ( error => {
         return Promise.reject(error);
     })
 }
+//menampilkan quiz berdasarkan bab
 function showQuiz(id){
-    fetch(`http://localhost:8000/kuis/soal?id=${id}`,{
+    return fetch(`http://localhost:8000/kuis/soal?id=${id}`,{
         method: "GET",
     })
     .then(res =>{
         return res.json();
     })
     .then(responseJson =>{
-        console.log(responseJson)
+        return Promise.resolve(responseJson);
+    })
+    .catch ( error => {
+        return Promise.reject(error);
     })
 }
+//mengirim hasil jawaban kuis, respon berupa jawaban yang benar-salah dan skor
 function answer(id, username, a1, a2, a3, a4, a5){
     fetch("http://localhost:8000/kuis/ans/", {
         method: "POST",
@@ -120,6 +113,7 @@ function answer(id, username, a1, a2, a3, a4, a5){
         console.log(responseJson)
     })
 }
+//menampilkan materi berdasarkan bab
 function content(id){
     return fetch(`http://localhost:4000/materi/${id}`,{
         method: "GET",
@@ -128,8 +122,8 @@ function content(id){
         return res.json();
     })
     .then(responseJson =>{
-        displayLesson(responseJson);
-        //return Promise.resolve(responseJson);
+        //displayLesson(responseJson);
+        return Promise.resolve(responseJson);
     })
     .catch ( error => {
         return Promise.reject(error);

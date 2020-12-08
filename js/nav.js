@@ -1,15 +1,11 @@
 document.addEventListener("DOMContentLoaded", function(){
     const elems = document.querySelectorAll(".sidenav");
-    M.Sidenav.init(elems);
-    // var dropdowns = document.querySelectorAll('.dropdown-button')
-    // for (var i = 0; i < dropdowns.length; i++){
-    //     M.Dropdown.init(dropdowns[i]);
-    // }
-    // $(".dropdown-trigger").dropdown();
-    loadNav();
+    M.Sidenav.init(elems); //inisialisasi sidenav untuk mobile
+    loadNav(); //load navigasi
+    //cek page yang mana dengan alamat
     let page = window.location.hash.substr(1);
     if (page == "") page = "home";
-    loadPage(page);
+    loadPage(page); //load halaman
 
     function loadPage  (page){
         const xhttp = new XMLHttpRequest();
@@ -22,6 +18,7 @@ document.addEventListener("DOMContentLoaded", function(){
                     if (page === "signup"){
                         const createAccount = document.getElementById('createAccount');
                         createAccount.addEventListener('click', function(){
+                            //checking input saat submit form sign up
                             let valid = true; 
                             const usernameInput = document.getElementById('user_name').value;
                             const nameInput = document.getElementById('full_name').value;
@@ -74,8 +71,7 @@ document.addEventListener("DOMContentLoaded", function(){
                             else{
                                 document.getElementById('confPassWarning').innerHTML = ``;
                             }
-                            console.log(nameInput)
-                            if(valid){
+                            if(valid){ //jika semua sesuai, lanjut signup
                                 signup(nameInput, usernameInput, pass, confPass)
                             }
                         })
@@ -84,6 +80,7 @@ document.addEventListener("DOMContentLoaded", function(){
                         let MT = false;
                         const loginButton = document.getElementById('loginButton');
                         loginButton.addEventListener('click', function(){
+                            //ceking input saat submit form login
                             const usernameInput = document.getElementById('user_name').value;
                             const passInput = document.getElementById('password').value;
                             const MTusername = MTInput(usernameInput);
@@ -102,15 +99,25 @@ document.addEventListener("DOMContentLoaded", function(){
                             else{
                                 document.getElementById('passWarning').innerHTML = ``;
                             }
-                            if (!MT){
-                                login(usernameInput, passInput);
-                                // loadNav();
-                                // loadPage("home")
+                            if (!MT){ //lanjut login jika input tidak ada yang kosong
+                                login(usernameInput, passInput).then((a) => {
+                                        if (a){
+                                            loadNav(); //load nav yang baru (saat sudah login, ada menu quiz)
+                                            loadPage("lesson") //menuju lesson
+                                        }
+                                });
                             }
                         })
                     }
                     else if(page === "lesson"){
-                       showLessonList();
+                       showLessonList() //mengambil daftar bab
+                       .then((a) =>{
+                           displayList(a); //menampilkan
+                       })
+                    }
+                    else if (page === "quiz"){
+                        //menampilkan kuis
+                            displayListQuizzes();
                     }
                 }
                 else
@@ -141,7 +148,9 @@ document.addEventListener("DOMContentLoaded", function(){
                     // Muat konten halaman yang dipanggil
                     const page = event.target.getAttribute("href").substr(1);
                     if (page === 'logout'){
-                        logout()
+                        logout();
+                        loadNav();
+                        loadPage(page);
                     }
                     else
                         loadPage(page);
@@ -149,10 +158,10 @@ document.addEventListener("DOMContentLoaded", function(){
                 });
             }
         };
-        if (localStorage.getItem('token') !== null)
+        if (localStorage.getItem('token') !== null) //artinya sudah login
             xhttp.open("GET", "loggedInNav.html", true);
         else
-            xhttp.open("GET", "nav.html", true);
+            xhttp.open("GET", "nav.html", true); //belum login
         xhttp.send();
     }
 
